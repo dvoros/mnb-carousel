@@ -36,11 +36,11 @@ func errorHtmlResp(w http.ResponseWriter, errorMsg string) {
 
 func main() {
 	if len(os.Args) != 3 {
-		fmt.Printf("please provide CSV path and HTML path as arguments")
+		log.Fatal("please provide CSV path and HTML path as arguments")
 	}
 
 	file, err := os.Open(os.Args[1])
-	checkError("Cannot create file", err)
+	checkError("Cannot open CSV file", err)
 	defer file.Close()
 
 	reader := csv.NewReader(file)
@@ -107,5 +107,5 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":8090", nil)
+	http.ListenAndServe(":8080", nil)
 }

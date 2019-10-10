@@ -61,7 +61,7 @@
 	<script>
 		var nextLoaded = true;
 		function setNextImageSrc() {
-			$.getJSON("//localhost:8090/random", function(data){
+			$.getJSON("/random", function(data){
 				$('.right img').attr('src', data.response.url);
 				$('.right .caption').html(data.response.path);
 				$('.right a').attr('href',data.response.url);
@@ -194,7 +194,7 @@
 </head>
 <body>
 	<div class="auto-check">
-		<input type="checkbox" id="auto-check" name="auto-check" value="auto-check"/> auto
+		<label><input type="checkbox" id="auto-check" name="auto-check" value="auto-check"/> auto<label>
 	</div>
 	<div class="container center"><div class="inner">
 		<h1 style="background-color: #17C200">CSABI</h1>
