@@ -1,0 +1,208 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>XXX</title>
+	<link rel="shortcut icon" type="image/png" href="favicon.png"/>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<style>
+		body {
+			font-family: Ubuntu, Verdana, Geneva, sans-serif;
+			background-color: #333;
+		}
+		h1 {
+			font-size: 80pt;
+			line-height: 1.5;
+			padding: 0;
+			text-align: center;
+			margin: 0.2em;
+		}
+		img{
+		  display:block;
+		  width:100%; height:100%;
+		  object-fit: contain;
+		}
+		.caption {
+		  height: 5%;
+		  width: 100%;
+		  text-align: center;
+		  text-transform: uppercase;
+		  font: 30px "Lato", sans-serif;
+		  color: #777;
+		  background-color: #333;
+		}
+		.container {
+			-webkit-transition: 0.5s;
+			-moz-transition: 0.5s;
+			-ms-transition: 0.5s;
+			-o-transition: 0.5s;
+			transition: 0.5s;
+			position: fixed;
+			top: 0px;
+			width: 100%;
+			height: 95%;
+		}
+		.container.center {
+			left: 0px;
+		}
+		.container.left {
+			left: -100%;
+		}
+		.container.right {
+			left: 100%;
+		}
+		.auto-check {
+			position: absolute;
+			color: #fff;
+			z-index: 999;
+			left: 10px;
+			top: 10px;
+		}
+	</style>
+	<script>
+		var nextLoaded = true;
+		function setNextImageSrc() {
+			$.getJSON("//localhost:8090/random", function(data){
+				$('.right img').attr('src', data.response.url);
+				$('.right .caption').html(data.response.path);
+				$('.right a').attr('href',data.response.url);
+
+			}).always(function(){
+				// TODO: not always
+				nextLoaded = true;
+			});
+		}
+		function updateClasses() {
+			var elem = $(".container");
+			switch(curr_pos) {
+				case -1: elem.removeClass("center right"); elem.addClass("left"); break;
+				case  0: elem.removeClass("left right"); elem.addClass("center"); break;
+				case  1: elem.removeClass("left center"); elem.addClass("right"); break;
+			}
+		}
+
+		function createNew() {
+			var newContainer = $('<div class="container right"></div>');
+			var newImage = $('<img></img>');
+			var newCaption = $('<div class="caption"></p>');
+			newContainer.append(newImage);
+			newContainer.append(newCaption);
+			$("body").append(newContainer);
+		}
+
+		function loadNext() {
+			// Delete the one before the previous
+			$('.left').remove();
+
+			// Move previous to the left
+			var prevContainer = $('.center');
+			prevContainer.removeClass("center").addClass("left");
+
+			// Move next to center
+			var nextContainer = $('.right');
+			nextContainer.removeClass("right").addClass("center");
+
+			// Start loading the next image
+			createNew();
+			setNextImageSrc();
+		}
+
+		/*
+		 * Keypresses
+		 */
+		function keyPressed(e) {
+		    e = e || window.event;
+		    console.log(e.keyCode);
+		    if (e.keyCode == 39) {
+		    	if (nextLoaded) {
+			    	loadNext();
+			    }
+		    }
+		}
+
+		document.onkeydown = keyPressed;
+
+		/*
+		 * Touch events
+		 */
+		var eventTouchstart    = "touchstart";
+		var eventTouchmove     = "touchmove";
+		var eventTouchend      = "touchend";
+		if (window.navigator.msPointerEnabled) {
+			//Internet Explorer 10 style
+			eventTouchstart    = "MSPointerDown";
+			eventTouchmove     = "MSPointerMove";
+			eventTouchend      = "MSPointerUp";
+		}
+		var touchStartX, touchStartY;
+		document.addEventListener(eventTouchstart, function (event) {
+			if ((!window.navigator.msPointerEnabled && event.touches.length > 1) ||
+				event.targetTouches > 1) {
+				return; // Ignore if touching with more than 1 finger
+			}
+
+			if (window.navigator.msPointerEnabled) {
+				touchStartX = event.pageX;
+				touchStartY = event.pageY;
+			} else {
+				touchStartX = event.touches[0].clientX;
+				touchStartY = event.touches[0].clientY;
+			}
+
+			event.preventDefault();
+		});
+
+		document.addEventListener(eventTouchmove, function (event) {
+			event.preventDefault();
+		});
+
+		document.addEventListener(eventTouchend, function (event) {
+			if ((!window.navigator.msPointerEnabled && event.touches.length > 0) ||
+			event.targetTouches > 0) {
+				return; // Ignore if still touching with one or more fingers
+			}
+			var touchEndX, touchEndY;
+
+			if (window.navigator.msPointerEnabled) {
+				touchEndX = event.pageX;
+				touchEndY = event.pageY;
+			} else {
+				touchEndX = event.changedTouches[0].clientX;
+				touchEndY = event.changedTouches[0].clientY;
+			}
+
+			var dx = touchEndX - touchStartX;
+			var absDx = Math.abs(dx);
+
+			var dy = touchEndY - touchStartY;
+			var absDy = Math.abs(dy);
+			if (Math.max(absDx, absDy) > 10) {
+
+				if (absDx > absDy && dx < 0) {
+					loadNext();
+				}
+			}
+		});
+
+		setInterval(function(){
+			if (document.getElementById("auto-check").checked) {
+				if (nextLoaded) {
+					loadNext();
+				}
+			}
+		}, 6000);
+	</script>
+</head>
+<body>
+	<div class="auto-check">
+		<input type="checkbox" id="auto-check" name="auto-check" value="auto-check"/> auto
+	</div>
+	<div class="container center"><div class="inner">
+		<h1 style="background-color: #17C200">CSABI</h1>
+		<h1 style="background-color: #ECE300">KRUX</h1>
+		<h1 style="background-color: #CE0000">PUDI</h1></div>
+	<script>
+		createNew();
+		setNextImageSrc();
+	</script>
+</body>
+</html>
